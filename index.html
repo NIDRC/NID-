@@ -9,8 +9,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Bebas+Neue&family=JetBrains+Mono:wght@400;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0a0a0a;
-    --bg-card: #141414;
+    --bg: #000000;
+    --bg-card: #131313;
     --bg-elev: #1c1c1c;
     --bg-elev2: #242424;
     --ink: #f4f4f0;
@@ -21,10 +21,22 @@
     --accent-2: #FF9500;
     --accent-3: #FFB627;
     --danger: #ff3a5e;
+    --radius: 14px;
     --display: 'Anton', 'Bebas Neue', sans-serif;
     --mono: 'JetBrains Mono', monospace;
     --tc: 'Noto Sans TC', sans-serif;
   }
+  /* 官網風格對齊：卡片一律圓角 + 輕微陰影，呼應 nidstudio.online 的柔和質感 */
+  .brand-card, .bank-info, .summary, .modal, .error-screen,
+  input[type=text], input[type=tel], input[type=email], select,
+  .meta-strip > div, .info-link, .order-no, .submit, .brand-icon,
+  .loading-screen, .continue-btn, .qty-btn, .modal-foot-note,
+  #errBanner, .item, .matrix-table tr {
+    border-radius: var(--radius);
+  }
+  .brand-card, .summary, .modal { box-shadow: 0 8px 30px rgba(0,0,0,.35); }
+  .meta-strip { border-radius: var(--radius); overflow: hidden; }
+  .meta-strip > div { border-radius: 0; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { background: var(--bg); color: var(--ink); font-family: var(--tc); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
   body::before { content:''; position: fixed; inset: 0; background-image: radial-gradient(circle at 20% 10%, rgba(254,225,0,.08), transparent 40%), radial-gradient(circle at 80% 90%, rgba(255,149,0,.06), transparent 45%); pointer-events: none; z-index: 0; }
