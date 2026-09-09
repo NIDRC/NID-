@@ -1224,7 +1224,7 @@
 
 <script>
 // ⚠️ 部署新版 Code.gs 後，把新的網頁應用程式網址貼在這裡（見 README.md「部署後端」步驟）
-const GAS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbz1xKGsAOMnbzLbsz0gDCHt_cPFEgTh6Icaa8j__Bs35KquBr-idGtFCKKII3peICDbNw/exec';
+const GAS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbzMbF1FoBCvZijcWEFjASm4i7pjMiLRaSqTa2jb7MAUBpw-_8mOYP5oJP6Lw4twA3gOiw/exec';
 
 // 班級資料改為從後台「班級設定」分頁動態取得（不再寫死於程式碼中）
 // 由 loadCatalog() 取得 data.classData 後帶入，格式：{ 類型: { 區域: [班級,...] } }
@@ -1238,7 +1238,10 @@ const variantLookup = {}; // {variantId: {variant, item, brand, cat}}
 async function loadCatalog() {
   try {
     const url = GAS_ENDPOINT + '?action=getCatalog&t=' + Date.now();
-    const res = await fetch(url);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000);
+    const res = await fetch(url, { signal: controller.signal });
+    clearTimeout(timeoutId);
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
     if (!data.ok) throw new Error(data.error || '未知錯誤');
@@ -1269,9 +1272,12 @@ async function loadCatalog() {
     renderCatalog();
     renderSummary();
   } catch (err) {
+    const isTimeout = err.name === 'AbortError';
     showFatalError(
-      '⚠️ <b>無法載入商品資料</b><br><br>錯誤訊息：' + err.message +
-      '<br><br>請檢查 Google Apps Script 是否已部署為「網路應用程式」且「誰可以存取」選「任何人」'
+      isTimeout
+        ? '⚠️ <b>連線逾時</b><br><br>後端請求超過 15 秒沒有回應，可能是網路不穩定，或 Google 那邊暫時比較忙。<br><br><button onclick="location.reload()" style="margin-top:12px;background:var(--accent);color:#000;border:0;padding:10px 20px;font-family:var(--display);font-size:14px;letter-spacing:.04em;cursor:pointer;">重新整理再試一次</button>'
+        : '⚠️ <b>無法載入商品資料</b><br><br>錯誤訊息：' + err.message +
+          '<br><br>請檢查 Google Apps Script 是否已部署為「網路應用程式」且「誰可以存取」選「任何人」'
     );
   }
 }
