@@ -1835,12 +1835,17 @@ submitBtn.addEventListener('click', async () => {
   submitBtn.disabled = true;
 
   try {
-    await fetch(GAS_ENDPOINT, {
+    const fetchPromise = fetch(GAS_ENDPOINT, {
       method: 'POST',
       mode: 'no-cors',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify(payload)
     });
+    // 保險機制：no-cors 模式下瀏覽器讀不到真正的回應內容，
+    // 如果 10 秒內網路請求還沒結束（手機瀏覽器偶爾會卡住），
+    // 也直接當作已送出處理，避免畫面一直轉圈圈出不去。
+    const timeoutPromise = new Promise(resolve => setTimeout(resolve, 10000));
+    await Promise.race([fetchPromise, timeoutPromise]);
 
     document.getElementById('orderNo').textContent = '#' + orderNo;
     document.getElementById('modalBg').classList.add('open');
