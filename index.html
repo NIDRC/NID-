@@ -1659,9 +1659,17 @@ classtypeEl.addEventListener('change', () => {
     });
     regionEl.disabled = false;
     _resetClass('請先選擇區域');
-  } else {
+   } else {
     regionFieldEl.style.display = 'none';
-    regionEl.value = regions[0];
+    regionEl.innerHTML = '';
+    if (regions[0]) {
+      const opt = document.createElement('option');
+      opt.value = regions[0];
+      opt.textContent = regions[0];
+      regionEl.appendChild(opt);
+    }
+    regionEl.value = regions[0] || '';
+    regionEl.disabled = false;
     _fillClasses(CLASS_DATA[type][regions[0]]);
   }
 });
