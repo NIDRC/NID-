@@ -951,6 +951,40 @@
   .closed-line-btn:hover { background: #05a847; }
 
 </style>
+    /* ── 整體美化微調 ── */
+  header { padding: 48px 0 28px; position: relative; }
+  header::before {
+    content: '';
+    position: absolute;
+    top: -60px; left: -80px;
+    width: 420px; height: 420px;
+    background: radial-gradient(circle, rgba(254,225,0,.08), transparent 70%);
+    pointer-events: none;
+    z-index: -1;
+  }
+  h1 { margin-top: 18px; }
+  .subtitle { margin-top: 16px; }
+  .meta-strip { margin-top: 28px; }
+  .meta-strip > div { transition: background .2s; }
+  .meta-strip > div:hover { background: var(--bg-elev); }
+
+  .section-title { margin: 48px 0 20px; }
+  .section-title .num { text-shadow: 0 0 18px rgba(254,225,0,.35); }
+
+  .brand-card, .item {
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+  }
+  .brand-card:hover { transform: translateY(-2px); border-color: var(--ink-faint); }
+  .item:hover { border-color: var(--ink-faint); }
+
+  .submit, .continue-btn, .qty-btn, .closed-line-btn, .line-btn {
+    transition: transform .15s ease, background .2s ease, box-shadow .2s ease;
+  }
+  .submit:hover, .closed-line-btn:hover, .line-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0,0,0,.4); }
+  .qty-btn:hover { transform: scale(1.06); }
+  .submit:active, .continue-btn:active, .qty-btn:active { transform: scale(.97); }
+
+  ::selection { background: var(--accent); color: #000; }
 </head>
 <body>
 
