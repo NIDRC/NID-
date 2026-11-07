@@ -45,6 +45,7 @@
     --mono: 'JetBrains Mono', ui-monospace, monospace;
     --poster: 'Saira Condensed', 'Anton', sans-serif;
   }
+  :root { color-scheme: dark; }
   * { box-sizing: border-box; }
   html { scroll-padding-top: calc(var(--bar-h) + var(--tabs-h) + 12px); -webkit-text-size-adjust: 100%; }
   body { margin: 0; background: var(--pitch); color: var(--body); font-family: var(--tc); font-size: 15px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
@@ -284,6 +285,8 @@
   .field select { -webkit-appearance: none; appearance: none; padding-right: 38px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23a0a0a0' stroke-width='1.6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; }
   .field input:focus, .field select:focus { outline: none; border-color: var(--gold); }
   .field select:disabled { opacity: .5; }
+  .field select option { background: var(--carbon-2); color: var(--chalk); font-weight: 400; }
+  .field select optgroup { background: var(--carbon); color: var(--gold); font-style: normal; font-weight: 700; }
   .field input::placeholder { color: var(--fog-2); }
   .hint { margin-top: 6px; color: var(--fog); font-size: 12px; }
   .shipping-block { margin-top: 24px; padding: 20px 22px; border-radius: 24px; border: 1px solid var(--asphalt-2); background: #141414; }
@@ -347,6 +350,41 @@
   .line-btn { display: flex; align-items: center; justify-content: center; height: 48px; margin: 16px 0 10px; border-radius: var(--r-pill); background: var(--line-green); color: #fff; font-weight: 700; text-decoration: none; }
   .continue-btn { width: 100%; height: 46px; border-radius: var(--r-pill); border: 1px solid var(--asphalt-2); background: #141414; color: var(--chalk); font-weight: 700; cursor: pointer; }
   .modal .modal-foot-note { margin-top: 14px; color: var(--fog-2); font-size: 12px; }
+  /* 送出成功收據（給學員截圖傳給小編對帳） */
+  .modal { max-width: 440px; padding: 22px 20px 18px; }
+  .receipt-status { display: inline-flex; align-items: center; padding: 3px 16px; border-radius: var(--r-pill); background: var(--mint-bg); color: var(--mint); font-size: 15px; font-weight: 700; }
+  .modal h3 { margin: 10px 0 14px; font-size: 24px; }
+  .receipt { padding: 12px 18px 6px; border-radius: 18px; border: 1px solid var(--asphalt-2); background: var(--carbon-2); text-align: left; }
+  .receipt-label { color: var(--fog); font-size: 13px; text-align: center; }
+  .receipt .order-no { margin: 0 0 8px; font-size: 34px; text-align: center; }
+  .receipt-rows { margin: 0; }
+  .receipt-rows > div { display: grid; grid-template-columns: 84px 1fr; gap: 10px; align-items: baseline; padding: 6px 0; border-top: 1px solid var(--asphalt); font-size: 15px; }
+  .receipt-rows dt { color: var(--fog); }
+  .receipt-rows dd { margin: 0; color: var(--chalk); font-weight: 700; overflow-wrap: anywhere; }
+  .receipt-rows .rc-total dd { color: var(--gold); font-family: var(--num); font-size: 24px; font-weight: 800; line-height: 1.15; }
+  .receipt-steps { margin: 14px 0 0; padding: 0; list-style: none; counter-reset: step; text-align: left; }
+  .receipt-steps li { display: grid; grid-template-columns: 26px 1fr; gap: 10px; align-items: start; padding: 4px 0; color: var(--body); font-size: 14px; line-height: 1.6; counter-increment: step; }
+  .receipt-steps li::before { content: counter(step); width: 26px; height: 26px; border-radius: 50%; background: var(--bib); color: var(--bib-ink); display: grid; place-items: center; font-family: var(--num); font-size: 16px; font-weight: 800; }
+  .receipt-steps b { color: var(--chalk); }
+  .receipt-actions { display: grid; grid-template-columns: 1fr 1.35fr; gap: 10px; margin-top: 14px; }
+  .receipt-actions .continue-btn { height: 50px; }
+  .receipt-actions .line-btn { height: 50px; margin: 0; padding: 0 10px; background: var(--bib); color: var(--bib-ink); font-weight: 900; text-align: center; }
+  /* 小螢幕手機（例如 iPhone SE）：收據要一個畫面截得完 */
+  @media (max-height: 760px) {
+    .modal-bg { padding: 10px; }
+    .modal { padding: 14px 16px 12px; }
+    .receipt-status { font-size: 14px; }
+    .modal h3 { margin: 6px 0 10px; font-size: 21px; }
+    .receipt { padding: 8px 14px 4px; }
+    .receipt .order-no { margin-bottom: 4px; font-size: 28px; }
+    .receipt-rows > div { padding: 4px 0; font-size: 14px; }
+    .receipt-rows .rc-total dd { font-size: 21px; }
+    .receipt-steps { margin-top: 10px; }
+    .receipt-steps li { padding: 2px 0; font-size: 13px; line-height: 1.5; }
+    .receipt-actions { margin-top: 10px; }
+    .receipt-actions .continue-btn, .receipt-actions .line-btn { height: 44px; }
+    .modal .modal-foot-note { display: none; }
+  }
   @media (prefers-reduced-motion: reduce) { *:not(#introSplash):not(#introSplash *), *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
 </style>
 </head>
@@ -477,22 +515,31 @@
         <div class="hint">訂單確認信會寄到這個信箱</div>
       </div>
       <div class="field">
-        <label for="classtype">類型 <span class="req">*</span></label>
-        <select id="classtype">
+        <label for="classPick">班級 <span class="req">*</span></label>
+        <select id="classPick">
           <option value="">載入中...</option>
         </select>
       </div>
-      <div class="field" id="regionField" style="display:none">
-        <label for="region">所在區域 <span class="req">*</span></label>
-        <select id="region" disabled>
-          <option value="">請先選擇類型</option>
-        </select>
-      </div>
-      <div class="field">
-        <label for="classname">班級 <span class="req">*</span></label>
-        <select id="classname" disabled>
-          <option value="">請先選擇類型</option>
-        </select>
+      <!-- 原本的類型／區域／班級：由上面的「班級」自動帶入，畫面上不顯示 -->
+      <div class="class-fields-hidden" hidden>
+        <div class="field">
+          <label for="classtype">類型 <span class="req">*</span></label>
+          <select id="classtype">
+            <option value="">載入中...</option>
+          </select>
+        </div>
+        <div class="field" id="regionField" style="display:none">
+          <label for="region">所在區域 <span class="req">*</span></label>
+          <select id="region" disabled>
+            <option value="">請先選擇類型</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="classname">班級 <span class="req">*</span></label>
+          <select id="classname" disabled>
+            <option value="">請先選擇類型</option>
+          </select>
+        </div>
       </div>
       <div class="field full">
         <label for="last5">匯款後五碼 <span class="req">*</span></label>
@@ -566,24 +613,30 @@
 </div>
 
 <div class="modal-bg" id="modalBg">
-  <div class="modal">
-    <div class="check">✓</div>
-    <h3>訂單已送出</h3>
-    <p>感謝你的下單！</p>
-    <div class="order-no" id="orderNo">#NID-000000</div>
-    <div class="modal-bank-reminder">
-      <div class="modal-bank-row"><span>戶名</span><b>江凱為</b></div>
-      <div class="modal-bank-row"><span>銀行</span><b>822 中國信託（瑞光）</b></div>
-      <div class="modal-bank-row"><span>帳號</span><b style="color:var(--accent)">7165-4022-7006</b></div>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="receiptTitle">
+    <div class="receipt-status">✓ 訂單已送出</div>
+    <h3 id="receiptTitle">請截圖這個畫面</h3>
+    <div class="receipt">
+      <div class="receipt-label">訂單編號</div>
+      <div class="order-no" id="orderNo">#NID-000000</div>
+      <dl class="receipt-rows">
+        <div><dt>姓名</dt><dd id="rcName"></dd></div>
+        <div><dt>班級</dt><dd id="rcClass"></dd></div>
+        <div><dt>訂購品項</dt><dd id="rcItems"></dd></div>
+        <div class="rc-total"><dt>團購總金額</dt><dd id="rcTotal"></dd></div>
+        <div><dt>匯款後五碼</dt><dd id="rcLast5"></dd></div>
+        <div><dt>送出時間</dt><dd id="rcTime"></dd></div>
+      </dl>
     </div>
-    <p>📬 訂單明細已寄到你的信箱<br><br>請點擊下方按鈕加入 <b style="color:#06c755">NID 官方 LINE</b><br>主辦人會與你確認匯款狀態</p>
-    <a class="line-btn" href="https://page.line.me/eei8717i" target="_blank" rel="noopener">
-      前往 LINE 確認匯款
-    </a>
-    <button class="continue-btn" id="continueBtn">
-      <span class="continue-icon">🛒</span> 我還想再買其他商品
-    </button>
-    <p class="modal-foot-note">⚠ 送出後的訂單無法修改，如需更改請洽 LINE</p>
+    <ol class="receipt-steps">
+      <li><span><b>截圖</b>這個畫面（手機：電源鍵＋音量鍵一起按）。</span></li>
+      <li><span>把截圖<b>傳給 NID 官方 LINE 小編</b>，方便對帳：按下面的按鈕打開官方 LINE。</span></li>
+    </ol>
+    <div class="receipt-actions">
+      <button class="continue-btn" id="continueBtn" type="button">我截好了</button>
+      <a class="line-btn" href="https://page.line.me/eei8717i" target="_blank" rel="noopener">傳給官方 LINE 小編</a>
+    </div>
+    <p class="modal-foot-note">訂單明細也已寄到你的 Email。送出後就不能修改，需要更改請洽 LINE。</p>
   </div>
 </div>
 
@@ -1167,10 +1220,52 @@ const regionEl = document.getElementById('region');
 const classEl = document.getElementById('classname');
 
 // 依照後台「班級設定」動態產生「類型」下拉選單選項
+// 班級選單分組：課程名稱＋上課地點（地點從班級名稱裡取，例如「週一北田跑步班」→ 北田）
+const COURSE_NAMES = { '跑步班': '專業跑步課程', '肌力班': '專業肌力課程' };
+const VENUE_NAMES = { '北田': '臺北田徑場', '內湖': '內湖高工', '中正': '中正紀念堂', '高大': '高雄大學田徑場' };  // 其他地點沿用班級名稱裡的簡稱，可在這裡補上全名
+function classVenue(name) {
+  const m = String(name).match(/^週[一二三四五六日](.+?)(?=初階|早跑|跑步|跑者|HYROX|Hyrox|訓練|肌力)/);
+  return m ? m[1] : '';
+}
+function buildClassPicker() {
+  const pick = document.getElementById('classPick');
+  const SEP = '\u0001';
+  let html = '<option value="">選擇你的班級</option>';
+  Object.keys(CLASS_DATA).forEach(type => {
+    Object.keys(CLASS_DATA[type]).forEach(region => {
+      const groups = {};
+      (CLASS_DATA[type][region] || []).forEach(n => {
+        const v = classVenue(n) || region;
+        (groups[v] = groups[v] || []).push(n);
+      });
+      Object.keys(groups).forEach(v => {
+        const names = groups[v];
+        const shown = names.map(n => String(n).replace(/\/[^\/]*教練$/, ''));   // 選單上不顯示教練
+        const label = (COURSE_NAMES[type] || type) + '｜' + (VENUE_NAMES[v] || v);
+        html += '<optgroup label="' + escapeHtml(label) + '">' + names.map((n, i) => {
+          const text = shown.filter(x => x === shown[i]).length > 1 ? n : shown[i];  // 同名的班級才保留教練名字
+          return '<option value="' + escapeHtml(type + SEP + region + SEP + n) + '">' + escapeHtml(text) + '</option>';
+        }).join('') + '</optgroup>';
+      });
+    });
+  });
+  pick.innerHTML = html;
+}
+document.getElementById('classPick').addEventListener('change', e => {
+  const parts = e.target.value ? e.target.value.split('\u0001') : ['', '', ''];
+  classtypeEl.value = parts[0];
+  classtypeEl.dispatchEvent(new Event('change'));
+  if (!parts[0]) return;
+  regionEl.value = parts[1];
+  regionEl.dispatchEvent(new Event('change'));
+  classEl.value = parts[2];
+});
+
 function initClassTypeOptions() {
   const types = Object.keys(CLASS_DATA);
   classtypeEl.innerHTML = '<option value="">請選擇類型</option>' +
     types.map(t => `<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`).join('');
+  buildClassPicker();
 }
 
 function _resetClass(placeholder) {
@@ -1250,7 +1345,7 @@ submitBtn.addEventListener('click', async () => {
 
   const classtype = classtypeEl.value;
   if (!name || !phone || !email || !classtype || !region || !classname || !last5) {
-    showError('請填寫所有必填欄位（姓名 / 電話 / Email / 類型 / 區域 / 班級 / 匯款後五碼）');
+    showError('請填寫所有必填欄位（姓名 / 電話 / Email / 班級 / 匯款後五碼）');
     return;
   }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -1327,6 +1422,7 @@ submitBtn.addEventListener('click', async () => {
     await Promise.race([fetchPromise, timeoutPromise]);
 
     document.getElementById('orderNo').textContent = '#' + orderNo;
+    fillReceipt(payload);
     document.getElementById('modalBg').classList.add('open');
 
     Object.keys(qtyMap).forEach(k => qtyMap[k] = 0);
@@ -1336,6 +1432,7 @@ submitBtn.addEventListener('click', async () => {
     document.querySelectorAll('.qty, .matrix-qty').forEach(c => c.classList.remove('has-qty'));
     ['name','phone','email','last5','note','shipName','shipPhone','shipAddress'].forEach(id => document.getElementById(id).value = '');
     classtypeEl.value = '';
+    document.getElementById('classPick').value = '';
     regionFieldEl.style.display = 'none';
     regionEl.innerHTML = '<option value="">請先選擇類型</option>';
     regionEl.disabled = true;
@@ -1352,6 +1449,19 @@ submitBtn.addEventListener('click', async () => {
     submitBtn.disabled = false;
   }
 });
+
+// 送出成功收據：給學員截圖、傳給 LINE 小編對帳
+function fillReceipt(p) {
+  const set = (id, v) => { document.getElementById(id).textContent = v; };
+  const count = p.items.reduce((t, i) => t + i.qty, 0);
+  const d = new Date(p.timestamp);
+  set('rcName', p.name);
+  set('rcClass', [p.region, p.classname].filter(Boolean).join('・'));
+  set('rcItems', '共 ' + count + ' 件');
+  set('rcTotal', 'NT$ ' + Number(p.total).toLocaleString());
+  set('rcLast5', p.last5);
+  set('rcTime', (d.getMonth() + 1) + '/' + d.getDate() + ' ' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'));
+}
 
 function showError(msg) {
   errBanner.textContent = '⚠ ' + msg;
