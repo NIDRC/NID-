@@ -409,22 +409,21 @@
   .receipt-actions { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 14px; }
   .receipt-actions .continue-btn { height: 50px; }
   .receipt-actions .line-btn { height: 50px; margin: 0; padding: 0 10px; background: var(--bib); color: var(--bib-ink); font-weight: 900; text-align: center; }
-  /* 小螢幕手機（例如 iPhone SE）：收據要一個畫面截得完 */
-  @media (max-height: 760px) {
-    .modal-bg { padding: 10px; }
-    .modal { padding: 14px 16px 12px; }
-    .receipt-status { font-size: 14px; }
-    .modal h3 { margin: 6px 0 10px; font-size: 21px; }
-    .receipt { padding: 8px 14px 4px; }
-    .receipt .order-no { margin-bottom: 4px; font-size: 28px; }
-    .receipt-rows > div { padding: 4px 0; font-size: 14px; }
-    .receipt-rows .rc-total dd { font-size: 21px; }
-    .receipt-steps { margin-top: 10px; }
-    .receipt-steps li { padding: 2px 0; font-size: 13px; line-height: 1.5; }
-    .receipt-actions { margin-top: 10px; }
-    .receipt-actions .continue-btn, .receipt-actions .line-btn { height: 44px; }
-    .modal .modal-foot-note { display: none; }
-  }
+  /* 收據固定用精簡版：瀏覽器上下列收起來、畫面變高也一樣大，一個畫面截得完 */
+  .modal-bg { padding: 10px; align-items: flex-start; }
+  .modal { margin: auto; padding: 14px 16px 12px; }
+  .receipt-status { font-size: 14px; }
+  .modal h3 { margin: 6px 0 10px; font-size: 21px; }
+  .receipt { padding: 8px 14px 4px; }
+  .receipt .order-no { margin-bottom: 4px; font-size: 28px; }
+  .receipt-rows > div { padding: 4px 0; font-size: 14px; }
+  .receipt-rows .rc-total dd { font-size: 21px; }
+  .receipt-mail { margin: 10px 0 0; color: var(--fog); font-size: 13px; text-align: center; }
+  .receipt-steps { margin-top: 8px; }
+  .receipt-steps li { padding: 2px 0; font-size: 13px; line-height: 1.5; }
+  .receipt-actions { margin-top: 10px; }
+  .receipt-actions .continue-btn, .receipt-actions .line-btn { height: 44px; }
+  .modal .modal-foot-note { display: none; }
   @media (prefers-reduced-motion: reduce) { *:not(#introSplash):not(#introSplash *), *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
 </style>
 </head>
@@ -681,6 +680,7 @@
         <div><dt>送出時間</dt><dd id="rcTime"></dd></div>
       </dl>
     </div>
+    <p class="receipt-mail">📬 訂單明細已寄到您的信箱</p>
     <ol class="receipt-steps">
       <li><span><b>截圖</b>這個畫面（手機：電源鍵＋音量鍵一起按）。</span></li>
       <li><span>把截圖<b>傳給 NID 官方 LINE 小編</b>，方便對帳：按下面的按鈕打開官方 LINE。</span></li>
