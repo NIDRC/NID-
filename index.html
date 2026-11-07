@@ -286,6 +286,31 @@
   .field input:focus, .field select:focus { outline: none; border-color: var(--gold); }
   .field select:disabled { opacity: .5; }
   .field select option { background: var(--carbon-2); color: var(--chalk); font-weight: 400; }
+  /* 班級：區域、課程用按鈕選，班級清單依上課地點分組 */
+  .class-picker { display: grid; gap: 10px; }
+  .cp-title { color: var(--chalk); font-size: 14px; font-weight: 500; }
+  .cp-row { display: grid; grid-template-columns: 40px 1fr; align-items: center; gap: 10px; }
+  .cp-row[hidden] { display: none; }
+  .cp-row-label { color: var(--fog); font-size: 13px; }
+  .cp-wait { color: var(--fog-2); font-size: 14px; }
+  .seg { display: flex; flex-wrap: wrap; gap: 8px; }
+  .seg-btn { height: 40px; padding: 0 18px; border-radius: var(--r-pill); border: 1px solid var(--asphalt-2); background: var(--carbon-2); color: var(--body); font-size: 15px; font-weight: 500; cursor: pointer; }
+  .seg-btn:hover { border-color: var(--fog-2); }
+  .seg-btn.on { border-color: var(--gold); background: var(--olive); color: var(--gold); font-weight: 700; }
+  .cp-select { max-width: 640px; }
+  .cp-button { width: 100%; min-height: 48px; display: flex; align-items: center; gap: 10px; padding: 10px 40px 10px 16px; border-radius: 12px; border: 1px solid var(--asphalt-2); background: var(--carbon-2) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23a0a0a0' stroke-width='1.6'/%3E%3C/svg%3E") no-repeat right 16px center; color: var(--fog); font-size: 16px; text-align: left; cursor: pointer; }
+  .cp-button.chosen { color: var(--chalk); font-weight: 700; }
+  .cp-button[aria-expanded="true"] { border-color: var(--gold); }
+  .cp-button:disabled { opacity: .5; cursor: not-allowed; }
+  .cp-venue-tag { margin-left: auto; color: var(--fog); font-size: 13px; font-weight: 400; white-space: nowrap; }
+  .cp-panel { margin-top: 8px; max-height: min(60vh, 460px); overflow-y: auto; overscroll-behavior: contain; border-radius: 14px; border: 1px solid var(--asphalt-2); background: var(--carbon); }
+  .cp-venue { position: sticky; top: 0; z-index: 1; display: flex; align-items: center; gap: 8px; padding: 12px 16px 8px; border-top: 1px solid var(--asphalt); background: var(--carbon); color: var(--gold); font-size: 17px; font-weight: 700; }
+  .cp-venue::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--gold); }
+  .cp-group:first-child .cp-venue { border-top: 0; }
+  .cp-option { width: 100%; min-height: 46px; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 0 16px 0 30px; border: 0; background: transparent; color: var(--chalk); font-size: 15px; text-align: left; cursor: pointer; }
+  .cp-option:hover, .cp-option:focus-visible { background: var(--carbon-2); }
+  .cp-option.on { color: var(--gold); font-weight: 700; }
+  .cp-option.on::after { content: '✓'; }
   .field select optgroup { background: var(--carbon); color: var(--gold); font-style: normal; font-weight: 700; }
   .field input::placeholder { color: var(--fog-2); }
   .hint { margin-top: 6px; color: var(--fog); font-size: 12px; }
@@ -509,16 +534,21 @@
         <label for="phone">電話 <span class="req">*</span></label>
         <input type="tel" id="phone" placeholder="0912-345-678" />
       </div>
-      <div class="field">
+      <div class="field full">
         <label for="email">Email <span class="req">*</span></label>
         <input type="email" id="email" placeholder="your@email.com" />
         <div class="hint">訂單確認信會寄到這個信箱</div>
       </div>
-      <div class="field">
-        <label for="classPick">班級 <span class="req">*</span></label>
-        <select id="classPick">
-          <option value="">載入中...</option>
-        </select>
+      <div class="field full class-picker" id="classPicker">
+        <div class="cp-title">班級 <span class="req">*</span></div>
+        <div class="cp-row"><span class="cp-row-label">區域</span><div class="seg" id="regionSeg" role="radiogroup" aria-label="區域"><span class="cp-wait">載入中…</span></div></div>
+        <div class="cp-row" id="typeRow" hidden><span class="cp-row-label">課程</span><div class="seg" id="typeSeg" role="radiogroup" aria-label="課程"></div></div>
+        <div class="cp-select">
+          <button type="button" class="cp-button" id="classButton" aria-haspopup="listbox" aria-expanded="false" disabled>
+            <span id="classButtonText">請先選擇區域和課程</span><span class="cp-venue-tag" id="classButtonVenue"></span>
+          </button>
+          <div class="cp-panel" id="classPanel" role="listbox" aria-label="班級" hidden></div>
+        </div>
       </div>
       <!-- 原本的類型／區域／班級：由上面的「班級」自動帶入，畫面上不顯示 -->
       <div class="class-fields-hidden" hidden>
@@ -1227,45 +1257,99 @@ function classVenue(name) {
   const m = String(name).match(/^週[一二三四五六日](.+?)(?=初階|早跑|跑步|跑者|HYROX|Hyrox|訓練|肌力)/);
   return m ? m[1] : '';
 }
-function buildClassPicker() {
-  const pick = document.getElementById('classPick');
-  const SEP = '\u0001';
-  let html = '<option value="">選擇你的班級</option>';
-  Object.keys(CLASS_DATA).forEach(type => {
-    Object.keys(CLASS_DATA[type]).forEach(region => {
-      const groups = {};
-      (CLASS_DATA[type][region] || []).forEach(n => {
-        const v = classVenue(n) || region;
-        (groups[v] = groups[v] || []).push(n);
-      });
-      Object.keys(groups).forEach(v => {
-        const names = groups[v];
-        const shown = names.map(n => String(n).replace(/\/[^\/]*教練$/, ''));   // 選單上不顯示教練
-        const label = (COURSE_NAMES[type] || type) + '｜' + (VENUE_NAMES[v] || v);
-        html += '<optgroup label="' + escapeHtml(label) + '">' + names.map((n, i) => {
-          const text = shown.filter(x => x === shown[i]).length > 1 ? n : shown[i];  // 同名的班級才保留教練名字
-          return '<option value="' + escapeHtml(type + SEP + region + SEP + n) + '">' + escapeHtml(text) + '</option>';
-        }).join('') + '</optgroup>';
-      });
-    });
-  });
-  pick.innerHTML = html;
+const CP = { region: '', type: '', name: '' };
+function cpRegions() {
+  const out = [];
+  Object.keys(CLASS_DATA).forEach(t => Object.keys(CLASS_DATA[t]).forEach(r => { if (!out.includes(r)) out.push(r); }));
+  return out;
 }
-document.getElementById('classPick').addEventListener('change', e => {
-  const parts = e.target.value ? e.target.value.split('\u0001') : ['', '', ''];
-  classtypeEl.value = parts[0];
+function cpTypes(region) {
+  return Object.keys(CLASS_DATA).filter(t => (CLASS_DATA[t][region] || []).length);
+}
+function cpLabel(name, names) {   // 選單上不顯示教練；同名的班級才保留教練名字
+  const strip = x => String(x).replace(/\/[^\/]*教練$/, '');
+  return names.filter(x => strip(x) === strip(name)).length > 1 ? name : strip(name);
+}
+function cpSeg(items, current, attr) {
+  return items.map(v => `<button type="button" role="radio" aria-checked="${v === current}" class="seg-btn${v === current ? ' on' : ''}" data-${attr}="${escapeHtml(v)}">${escapeHtml(v)}</button>`).join('');
+}
+function renderClassPicker() {
+  const regions = cpRegions();
+  if (!regions.includes(CP.region)) CP.region = regions.length === 1 ? regions[0] : '';
+  const types = CP.region ? cpTypes(CP.region) : [];
+  if (!types.includes(CP.type)) CP.type = types.length === 1 ? types[0] : '';
+  const names = CP.region && CP.type ? CLASS_DATA[CP.type][CP.region] : [];
+  if (!names.includes(CP.name)) CP.name = '';
+
+  document.getElementById('regionSeg').innerHTML = cpSeg(regions, CP.region, 'region');
+  document.getElementById('typeRow').hidden = !CP.region;
+  document.getElementById('typeSeg').innerHTML = cpSeg(types, CP.type, 'type');
+
+  const venueOf = n => { const v = classVenue(n) || CP.region; return VENUE_NAMES[v] || v; };
+  const btn = document.getElementById('classButton');
+  btn.disabled = !names.length;
+  btn.classList.toggle('chosen', !!CP.name);
+  document.getElementById('classButtonText').textContent =
+    CP.name ? cpLabel(CP.name, names) : names.length ? '選擇你的班級' : '請先選擇區域和課程';
+  document.getElementById('classButtonVenue').textContent = CP.name ? venueOf(CP.name) : '';
+
+  const groups = {};
+  names.forEach(n => { const v = venueOf(n); (groups[v] = groups[v] || []).push(n); });
+  document.getElementById('classPanel').innerHTML = Object.keys(groups).map(v =>
+    `<div class="cp-group" role="group" aria-label="${escapeHtml(v)}"><div class="cp-venue">${escapeHtml(v)}</div>` +
+    groups[v].map(n => `<button type="button" role="option" aria-selected="${n === CP.name}" class="cp-option${n === CP.name ? ' on' : ''}" data-name="${escapeHtml(n)}">${escapeHtml(cpLabel(n, names))}</button>`).join('') +
+    '</div>').join('');
+
+  // 帶入原本的類型／區域／班級（送出的資料格式不變）
+  classtypeEl.value = CP.type;
   classtypeEl.dispatchEvent(new Event('change'));
-  if (!parts[0]) return;
-  regionEl.value = parts[1];
-  regionEl.dispatchEvent(new Event('change'));
-  classEl.value = parts[2];
+  if (CP.type) {
+    regionEl.value = CP.region;
+    regionEl.dispatchEvent(new Event('change'));
+    classEl.value = CP.name;
+  }
+}
+function openClassPanel() {
+  const btn = document.getElementById('classButton');
+  const panel = document.getElementById('classPanel');
+  if (btn.disabled) return;
+  panel.hidden = false;
+  btn.setAttribute('aria-expanded', 'true');
+  const on = panel.querySelector('.cp-option.on');
+  panel.scrollTop = on ? Math.max(0, on.offsetTop - 60) : 0;
+}
+function closeClassPanel() {
+  document.getElementById('classPanel').hidden = true;
+  document.getElementById('classButton').setAttribute('aria-expanded', 'false');
+}
+function resetClassPicker() {
+  CP.region = ''; CP.type = ''; CP.name = '';
+  closeClassPanel();
+  renderClassPicker();
+}
+document.getElementById('classPicker').addEventListener('click', e => {
+  const r = e.target.closest('[data-region]');
+  if (r) { CP.region = r.dataset.region; CP.type = ''; CP.name = ''; closeClassPanel(); renderClassPicker(); return; }
+  const t = e.target.closest('[data-type]');
+  if (t) { CP.type = t.dataset.type; CP.name = ''; renderClassPicker(); openClassPanel(); return; }
+  if (e.target.closest('#classButton')) {
+    document.getElementById('classPanel').hidden ? openClassPanel() : closeClassPanel();
+    return;
+  }
+  const o = e.target.closest('[data-name]');
+  if (o) { CP.name = o.dataset.name; closeClassPanel(); renderClassPicker(); document.getElementById('classButton').focus(); }
 });
+// 點選單以外的地方才收起（按鈕會重畫，所以用點擊當下的路徑判斷）
+document.addEventListener('click', e => {
+  if (!e.composedPath().includes(document.getElementById('classPicker'))) closeClassPanel();
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeClassPanel(); });
 
 function initClassTypeOptions() {
   const types = Object.keys(CLASS_DATA);
   classtypeEl.innerHTML = '<option value="">請選擇類型</option>' +
     types.map(t => `<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`).join('');
-  buildClassPicker();
+  renderClassPicker();
 }
 
 function _resetClass(placeholder) {
@@ -1432,7 +1516,7 @@ submitBtn.addEventListener('click', async () => {
     document.querySelectorAll('.qty, .matrix-qty').forEach(c => c.classList.remove('has-qty'));
     ['name','phone','email','last5','note','shipName','shipPhone','shipAddress'].forEach(id => document.getElementById(id).value = '');
     classtypeEl.value = '';
-    document.getElementById('classPick').value = '';
+    resetClassPicker();
     regionFieldEl.style.display = 'none';
     regionEl.innerHTML = '<option value="">請先選擇類型</option>';
     regionEl.disabled = true;
