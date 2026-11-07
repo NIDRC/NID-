@@ -160,6 +160,31 @@
   @media (min-width: 720px) { .brand-card.open .items { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
   @media (min-width: 1080px) { .brand-card.open .items { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
   .info-banner, .item:has(.variant-matrix) { grid-column: 1 / -1; }
+
+  /* ── 電腦版：卡片對齊 ──
+     小卡（單純、單一口味）：名稱在上，價格和數量固定在卡片最底下同一排，省％標在右上角
+     多口味：整排寬，口味分兩到三欄排，不會把旁邊的小卡撐高 */
+  @media (min-width: 720px) {
+    .brand-card.open .items { grid-auto-flow: row dense; }
+    .item-multi, .item-matrix { grid-column: 1 / -1; }
+    .item { position: relative; }
+    .item .item-price-range .save { position: absolute; top: 18px; right: 18px; }
+    .item-name { padding-right: 84px; }
+    .item.item-simple, .item.item-single { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto auto 1fr auto; column-gap: 12px; row-gap: 0; }
+    .item-simple .item-header, .item-simple .item-info, .item-simple .item-simple-qty,
+    .item-single .item-header, .item-single .item-info, .item-single .variants-area, .item-single .variant-row { display: contents; }
+    .item-simple .item-name, .item-single .item-name { grid-column: 1 / -1; grid-row: 1; }
+    .item-simple .item-desc, .item-single .item-desc { grid-column: 1 / -1; grid-row: 2; }
+    .item-single .variant-label { grid-column: 1 / -1; grid-row: 3; align-self: start; margin-top: 10px; }
+    .item-single .variant-price { display: none; }
+    .item-single .variant-tag { padding: 0 12px; border-radius: var(--r-pill); border: 1px solid var(--asphalt-2); font-size: 13px; line-height: 26px; }
+    .item-single .has-qty .variant-tag { border-color: var(--gold); }
+    .item-simple .item-price-range, .item-single .item-price-range { grid-column: 1; grid-row: 4; align-self: end; margin-top: 14px; }
+    .item-simple .qty, .item-single .qty { grid-column: 2; grid-row: 4; align-self: end; }
+    .item-multi .variants-area { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 28px; border-top: 0; }
+    .item-multi .variant-row, .item-multi .variant-row:last-child { padding: 10px 0; border-top: 1px solid var(--asphalt); border-bottom: 0; }
+  }
+  @media (min-width: 1080px) { .item-multi:has(.variant-row:nth-child(3)) .variants-area { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
   .info-banner { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px; border-radius: 16px; border: 1px solid var(--asphalt); background: var(--carbon); color: var(--fog); font-size: 13px; text-decoration: none; }
   .info-banner:hover { border-color: var(--fog-2); }
   .info-banner b { color: var(--chalk); }
@@ -898,6 +923,8 @@ function renderCatalog() {
         const isSimple = item.optType === '無' || item.variants.length === 1 && !item.variants[0].opt1;
         const isMatrix = item.optType === '顏色+尺寸';
         const isFlavor = !isSimple && !isMatrix; // 口味、單顏色、單尺寸
+        // 卡片種類（電腦版排版用）：單純、單一口味、多口味、顏色×尺寸
+        itemEl.classList.add(isSimple ? 'item-simple' : isMatrix ? 'item-matrix' : item.variants.length > 1 ? 'item-multi' : 'item-single');
 
         let bodyHtml = '';
 
