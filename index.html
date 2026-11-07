@@ -302,7 +302,12 @@
   .cp-button.chosen { color: var(--chalk); font-weight: 700; }
   .cp-button[aria-expanded="true"] { border-color: var(--gold); }
   .cp-button:disabled { opacity: .5; cursor: not-allowed; }
-  .cp-venue-tag { margin-left: auto; color: var(--fog); font-size: 13px; font-weight: 400; white-space: nowrap; }
+  .cp-btn-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .cp-btn-sub { color: var(--fog); font-size: 13px; font-weight: 400; }
+  .cp-btn-sub:empty { display: none; }
+  .cp-name { flex: 1; min-width: 0; }
+  .cp-coach { color: var(--fog); font-size: 13px; font-weight: 400; white-space: nowrap; }
+  .cp-option.on .cp-coach { color: var(--gold); }
   .cp-panel { margin-top: 8px; max-height: min(60vh, 460px); overflow-y: auto; overscroll-behavior: contain; border-radius: 14px; border: 1px solid var(--asphalt-2); background: var(--carbon); }
   .cp-venue { position: sticky; top: 0; z-index: 1; display: flex; align-items: center; gap: 8px; padding: 12px 16px 8px; border-top: 1px solid var(--asphalt); background: var(--carbon); color: var(--gold); font-size: 17px; font-weight: 700; }
   .cp-venue::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--gold); }
@@ -320,6 +325,16 @@
   .shipping-title { color: var(--chalk); font-weight: 700; }
   .shipping-sub { color: var(--fog); font-size: 13px; }
   .shipping-block .field input { background: var(--carbon-2); }
+  .shipping-block { border-color: rgba(242,214,117,.55); }
+  .ship-tag { display: inline-block; margin-left: 6px; padding: 0 10px; border-radius: var(--r-pill); background: var(--olive); color: var(--gold); font-size: 12px; font-weight: 700; line-height: 22px; vertical-align: 2px; }
+  .ship-why { margin: 0 0 14px; padding: 12px 14px; border-radius: 14px; background: var(--olive); color: var(--gold); font-size: 14px; line-height: 1.6; }
+  .ship-why b { font-weight: 900; }
+  .ship-why ul { margin: 6px 0 0; padding-left: 20px; color: var(--chalk); font-weight: 700; }
+  .ship-why li + li { margin-top: 2px; }
+  .same-as { display: flex; align-items: center; gap: 10px; margin: 0 0 16px; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--asphalt-2); background: var(--carbon-2); color: var(--chalk); font-size: 15px; font-weight: 700; cursor: pointer; }
+  .same-as input { flex: 0 0 auto; width: 20px; height: 20px; margin: 0; accent-color: var(--bib); }
+  .same-as small { margin-left: 4px; color: var(--fog); font-size: 13px; font-weight: 400; }
+  .shipping-block .field input[readonly] { color: var(--fog); cursor: not-allowed; }
   .err-banner { display: none; margin-top: 20px; padding: 12px 16px; border-radius: 8px; border: 1px solid rgba(255,91,77,.5); background: rgba(255,91,77,.12); color: #ffb4ab; font-size: 14px; }
   .err-banner.show { display: block; }
   .warning-notice { margin-top: 28px; color: var(--fog); font-size: 14px; }
@@ -391,7 +406,7 @@
   .receipt-steps li { display: grid; grid-template-columns: 26px 1fr; gap: 10px; align-items: start; padding: 4px 0; color: var(--body); font-size: 14px; line-height: 1.6; counter-increment: step; }
   .receipt-steps li::before { content: counter(step); width: 26px; height: 26px; border-radius: 50%; background: var(--bib); color: var(--bib-ink); display: grid; place-items: center; font-family: var(--num); font-size: 16px; font-weight: 800; }
   .receipt-steps b { color: var(--chalk); }
-  .receipt-actions { display: grid; grid-template-columns: 1fr 1.35fr; gap: 10px; margin-top: 14px; }
+  .receipt-actions { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 14px; }
   .receipt-actions .continue-btn { height: 50px; }
   .receipt-actions .line-btn { height: 50px; margin: 0; padding: 0 10px; background: var(--bib); color: var(--bib-ink); font-weight: 900; text-align: center; }
   /* 小螢幕手機（例如 iPhone SE）：收據要一個畫面截得完 */
@@ -545,7 +560,7 @@
         <div class="cp-row" id="typeRow" hidden><span class="cp-row-label">課程</span><div class="seg" id="typeSeg" role="radiogroup" aria-label="課程"></div></div>
         <div class="cp-select">
           <button type="button" class="cp-button" id="classButton" aria-haspopup="listbox" aria-expanded="false" disabled>
-            <span id="classButtonText">請先選擇區域和課程</span><span class="cp-venue-tag" id="classButtonVenue"></span>
+            <span class="cp-btn-text"><span id="classButtonText">請先選擇區域和課程</span><span class="cp-btn-sub" id="classButtonSub"></span></span>
           </button>
           <div class="cp-panel" id="classPanel" role="listbox" aria-label="班級" hidden></div>
         </div>
@@ -587,10 +602,18 @@
       <div class="shipping-head">
         <span class="shipping-icon">🚚</span>
         <div>
-          <div class="shipping-title">配送資訊</div>
-          <div class="shipping-sub">你的訂單包含整箱直送品項，請填寫廠商直送的收件資訊</div>
+          <div class="shipping-title">配送資訊 <span class="ship-tag">整箱直送</span></div>
+          <div class="shipping-sub">整箱商品由廠商直接寄到你填的地址</div>
         </div>
       </div>
+      <div class="ship-why">
+        <div>因為你訂購了下面的<b>整箱直送</b>商品，才需要填寫這一欄：</div>
+        <ul id="shipItems"></ul>
+      </div>
+      <label class="same-as">
+        <input type="checkbox" id="shipSame" checked />
+        <span>收件人同訂購人<small>（自動帶入上面填的姓名、電話）</small></span>
+      </label>
       <div class="form-grid">
         <div class="field">
           <label for="shipName">收件人姓名 <span class="req">*</span></label>
@@ -663,8 +686,8 @@
       <li><span>把截圖<b>傳給 NID 官方 LINE 小編</b>，方便對帳：按下面的按鈕打開官方 LINE。</span></li>
     </ol>
     <div class="receipt-actions">
-      <button class="continue-btn" id="continueBtn" type="button">我截好了</button>
       <a class="line-btn" href="https://page.line.me/eei8717i" target="_blank" rel="noopener">傳給官方 LINE 小編</a>
+      <button class="continue-btn" id="continueBtn" type="button"><span class="continue-icon" aria-hidden="true">🛒</span> 我還想再買其他商品</button>
     </div>
     <p class="modal-foot-note">訂單明細也已寄到你的 Email。送出後就不能修改，需要更改請洽 LINE。</p>
   </div>
@@ -1183,7 +1206,29 @@ function onQtyChange() {
   if (shippingBlock) {
     shippingBlock.style.display = hasShipping ? 'block' : 'none';
   }
+  // 列出是哪些整箱商品需要配送（例如：櫻桃王・酸櫻桃汁（一箱）× 1）
+  document.getElementById('shipItems').innerHTML = Object.keys(qtyMap)
+    .filter(id => qtyMap[id] > 0 && variantLookup[id] && variantLookup[id].variant.needShipping)
+    .map(id => {
+      const { variant, item, brand } = variantLookup[id];
+      const opt = [variant.opt1, variant.opt2].filter(Boolean).join('/');
+      return `<li>${escapeHtml(brand.name)}・${escapeHtml(item.name)}${opt ? `（${escapeHtml(opt)}）` : ''} × ${qtyMap[id]}</li>`;
+    }).join('');
+  syncShipSame();
 }
+
+// 收件人同訂購人：勾選時自動帶入上面的姓名、電話，並跟著同步
+function syncShipSame() {
+  const same = document.getElementById('shipSame').checked;
+  ['Name', 'Phone'].forEach(k => {
+    const ship = document.getElementById('ship' + k);
+    ship.readOnly = same;
+    if (same) ship.value = document.getElementById(k.toLowerCase()).value.trim();
+  });
+}
+document.getElementById('shipSame').addEventListener('change', syncShipSame);
+document.getElementById('name').addEventListener('input', syncShipSame);
+document.getElementById('phone').addEventListener('input', syncShipSame);
 
 function renderSummary() {
   const lines = document.getElementById('summaryLines');
@@ -1266,9 +1311,9 @@ function cpRegions() {
 function cpTypes(region) {
   return Object.keys(CLASS_DATA).filter(t => (CLASS_DATA[t][region] || []).length);
 }
-function cpLabel(name, names) {   // 選單上不顯示教練；同名的班級才保留教練名字
-  const strip = x => String(x).replace(/\/[^\/]*教練$/, '');
-  return names.filter(x => strip(x) === strip(name)).length > 1 ? name : strip(name);
+function cpSplit(name) {   // 「週三北田初階跑步班/承勳教練」→ 班名＋教練
+  const m = String(name).match(/^(.*)\/([^\/]*教練)$/);
+  return m ? { cls: m[1], coach: m[2] } : { cls: String(name), coach: '' };
 }
 function cpSeg(items, current, attr) {
   return items.map(v => `<button type="button" role="radio" aria-checked="${v === current}" class="seg-btn${v === current ? ' on' : ''}" data-${attr}="${escapeHtml(v)}">${escapeHtml(v)}</button>`).join('');
@@ -1289,15 +1334,19 @@ function renderClassPicker() {
   const btn = document.getElementById('classButton');
   btn.disabled = !names.length;
   btn.classList.toggle('chosen', !!CP.name);
+  const picked = cpSplit(CP.name);
   document.getElementById('classButtonText').textContent =
-    CP.name ? cpLabel(CP.name, names) : names.length ? '選擇你的班級' : '請先選擇區域和課程';
-  document.getElementById('classButtonVenue').textContent = CP.name ? venueOf(CP.name) : '';
+    CP.name ? picked.cls : names.length ? '選擇你的班級' : '請先選擇區域和課程';
+  document.getElementById('classButtonSub').textContent = CP.name ? [picked.coach, venueOf(CP.name)].filter(Boolean).join('・') : '';
 
   const groups = {};
   names.forEach(n => { const v = venueOf(n); (groups[v] = groups[v] || []).push(n); });
   document.getElementById('classPanel').innerHTML = Object.keys(groups).map(v =>
     `<div class="cp-group" role="group" aria-label="${escapeHtml(v)}"><div class="cp-venue">${escapeHtml(v)}</div>` +
-    groups[v].map(n => `<button type="button" role="option" aria-selected="${n === CP.name}" class="cp-option${n === CP.name ? ' on' : ''}" data-name="${escapeHtml(n)}">${escapeHtml(cpLabel(n, names))}</button>`).join('') +
+    groups[v].map(n => {
+      const p = cpSplit(n);
+      return `<button type="button" role="option" aria-selected="${n === CP.name}" class="cp-option${n === CP.name ? ' on' : ''}" data-name="${escapeHtml(n)}"><span class="cp-name">${escapeHtml(p.cls)}</span>${p.coach ? `<span class="cp-coach">${escapeHtml(p.coach)}</span>` : ''}</button>`;
+    }).join('') +
     '</div>').join('');
 
   // 帶入原本的類型／區域／班級（送出的資料格式不變）
@@ -1515,6 +1564,7 @@ submitBtn.addEventListener('click', async () => {
     document.querySelectorAll('.variant-row').forEach(r => r.classList.remove('has-qty'));
     document.querySelectorAll('.qty, .matrix-qty').forEach(c => c.classList.remove('has-qty'));
     ['name','phone','email','last5','note','shipName','shipPhone','shipAddress'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('shipSame').checked = true;
     classtypeEl.value = '';
     resetClassPicker();
     regionFieldEl.style.display = 'none';
