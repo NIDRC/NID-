@@ -72,12 +72,20 @@
   #introSplash .word.w2 { animation: splashWord 1.8s ease .5s forwards; }
   #introSplash .word.w3 { animation: splashWord 1.8s ease 1s forwards; font-size: clamp(20px, 4.5vw, 36px); }
   @keyframes splashWord { 0% { opacity: 0; transform: translateY(8px); } 15%, 32% { opacity: 1; transform: translateY(0); } 45%, 100% { opacity: 0; } }
-  @media (prefers-reduced-motion: reduce) { #introSplash { display: none; } }
+  @keyframes splashFade { 0% { opacity: 0; } 15%, 32% { opacity: 1; } 45%, 100% { opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) { #introSplash .word { animation-name: splashFade; } }
 
   /* ── 開頭：舊版海報標題＋號碼布 ── */
-  .hero { position: relative; display: grid; grid-template-columns: 1fr; gap: 32px; align-items: center; padding: 40px 0 40px; }
+  .hero { position: relative; padding: 40px 0 40px; }
   .hero::before { content: ''; position: absolute; top: -90px; left: -140px; z-index: -1; width: 480px; height: 480px; background: radial-gradient(circle, rgba(254,224,1,.09), transparent 70%); pointer-events: none; }
-  @media (min-width: 860px) { .hero { grid-template-columns: minmax(0, 1fr) 260px; gap: 48px; padding: 64px 0 60px; } }
+  .hero-grid { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 48px; }
+  .hero-side { display: none; }
+  @media (min-width: 860px) {
+    .hero { padding: 64px 0 60px; }
+    .hero-side { display: flex; flex-direction: column; align-items: flex-end; justify-content: space-between; min-height: 260px; padding-top: 6px; }
+    .hero-side .n-mark { margin-right: -6px; font-family: var(--display); font-size: 84px; line-height: .8; color: transparent; -webkit-text-stroke: 1.5px var(--asphalt-2); }
+    .hero-side .vert-label { writing-mode: vertical-rl; font-family: var(--mono); font-size: 11px; letter-spacing: .3em; text-transform: uppercase; color: var(--fog-2); }
+  }
   .hero-main { min-width: 0; }
   .hero .brand { display: flex; align-items: center; gap: 10px; font-family: var(--mono); font-size: 12px; letter-spacing: .18em; text-transform: uppercase; color: var(--fog); }
   .hero .brand .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--bib); box-shadow: 0 0 12px var(--bib); animation: pulse 1.6s ease-in-out infinite; }
@@ -89,29 +97,27 @@
   .hero-tagline { margin-top: 18px; font-family: var(--mono); font-size: clamp(13px, 1.6vw, 16px); font-weight: 700; letter-spacing: .25em; text-transform: uppercase; color: var(--bib); }
   .hero .subtitle { margin-top: 18px; font-family: var(--mono); font-size: 13px; letter-spacing: .05em; color: var(--fog); }
   .hero .subtitle b { color: var(--gold); }
-  .meta-strip { display: grid; grid-template-columns: 1fr 1fr; margin-top: 28px; overflow: hidden; border-radius: 16px; border: 1px solid var(--asphalt-2); background: var(--carbon); }
+  .meta-strip { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 28px; overflow: hidden; border-radius: 16px; border: 1px solid var(--asphalt-2); background: var(--carbon); }
   .meta-strip > div { padding: 12px 16px; }
   .meta-strip > div + div { border-left: 1px solid var(--asphalt-2); }
   .meta-strip .k { font-family: var(--mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--fog-2); }
   .meta-strip .v { margin-top: 4px; font-family: var(--poster), var(--tc); font-style: italic; font-weight: 900; font-size: 19px; line-height: 1.3; color: var(--chalk); }
-  /* 截止字卡：比照官網報名框（深色卡片＋金黃數字＋綠色狀態標籤） */
-  .bib { position: relative; justify-self: center; width: 100%; max-width: 260px; padding: 18px 22px 20px; border-radius: 20px; border: 1px solid var(--asphalt-2); background: #141414; color: var(--chalk); text-align: center; }
-  .bib .pin { position: absolute; width: 7px; height: 7px; border-radius: 50%; background: var(--asphalt-2); }
-  .pin.tl { top: 12px; left: 12px; } .pin.tr { top: 12px; right: 12px; } .pin.bl { bottom: 12px; left: 12px; } .pin.br { bottom: 12px; right: 12px; }
-  .bib-top { margin: 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--asphalt-2); font-family: var(--mono); font-size: 11px; letter-spacing: .2em; color: var(--fog); }
-  .bib-number { margin: 12px 0 4px; font-family: var(--num); font-weight: 800; font-size: 68px; line-height: .95; color: var(--gold); font-variant-numeric: tabular-nums; }
-  .bib-bottom { display: flex; justify-content: center; gap: 6px; color: var(--fog); font-size: 13px; }
-  .bib-countdown { display: inline-flex; align-items: center; gap: 6px; margin-top: 12px; padding: 2px 12px; border-radius: var(--r-pill); background: var(--mint-bg); color: var(--mint); font-size: 13px; font-weight: 700; line-height: 22px; }
+  .meta-deadline { display: none; }
+  .strip-countdown { display: inline-flex; align-items: center; gap: 5px; margin-left: 10px; padding: 0 10px; border-radius: var(--r-pill); background: var(--mint-bg); color: var(--mint); font-family: var(--tc); font-style: normal; font-weight: 700; font-size: 12px; line-height: 22px; vertical-align: 3px; }
+  .strip-countdown::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--mint); }
+  .strip-countdown:empty { display: none; }
+  @media (min-width: 860px) {
+    .meta-strip { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .meta-deadline { display: block; }
+  }
+  /* 截止字卡（手機才顯示）：比照官網報名框，深色卡片＋金黃數字＋綠色狀態標籤 */
+  .bib { display: grid; grid-template-columns: auto 1fr; grid-template-areas: "num meta" "num count"; align-items: center; column-gap: 18px; margin-top: 12px; padding: 14px 20px; border-radius: 16px; border: 1px solid var(--asphalt-2); background: #141414; }
+  .bib-number { grid-area: num; font-family: var(--num); font-weight: 800; font-size: 50px; line-height: .95; color: var(--gold); font-variant-numeric: tabular-nums; }
+  .bib-bottom { grid-area: meta; align-self: end; display: flex; gap: 6px; color: var(--fog); font-size: 13px; }
+  .bib-countdown { grid-area: count; align-self: start; justify-self: start; display: inline-flex; align-items: center; gap: 6px; margin-top: 6px; padding: 2px 12px; border-radius: var(--r-pill); background: var(--mint-bg); color: var(--mint); font-size: 13px; font-weight: 700; line-height: 22px; }
   .bib-countdown::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--mint); }
   .bib-countdown:empty { display: none; }
-  @media (max-width: 859px) {
-    .hero { gap: 14px; }
-    .bib { justify-self: stretch; max-width: none; display: grid; grid-template-columns: auto 1fr; grid-template-areas: "num meta" "num count"; align-items: center; column-gap: 18px; padding: 14px 20px; border-radius: 16px; text-align: left; }
-    .bib .pin, .bib-top { display: none; }
-    .bib-number { grid-area: num; margin: 0; font-size: 50px; }
-    .bib-bottom { grid-area: meta; align-self: end; justify-content: flex-start; }
-    .bib-countdown { grid-area: count; align-self: start; justify-self: start; margin-top: 6px; }
-  }
+  @media (min-width: 860px) { .bib { display: none; } }
 
   /* ── 分類列 ── */
   #catNav { position: sticky; top: var(--bar-h); z-index: 40; gap: 32px; padding: 0 max(20px, calc((100% - 1080px) / 2)); overflow-x: auto; background: #0c0c0c; border-top: 1px solid var(--asphalt); border-bottom: 1px solid var(--asphalt); scrollbar-width: none; }
@@ -341,7 +347,7 @@
   .line-btn { display: flex; align-items: center; justify-content: center; height: 48px; margin: 16px 0 10px; border-radius: var(--r-pill); background: var(--line-green); color: #fff; font-weight: 700; text-decoration: none; }
   .continue-btn { width: 100%; height: 46px; border-radius: var(--r-pill); border: 1px solid var(--asphalt-2); background: #141414; color: var(--chalk); font-weight: 700; cursor: pointer; }
   .modal .modal-foot-note { margin-top: 14px; color: var(--fog-2); font-size: 12px; }
-  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+  @media (prefers-reduced-motion: reduce) { *:not(#introSplash):not(#introSplash *), *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
 </style>
 </head>
 <body>
@@ -377,19 +383,27 @@
 <div class="wrap wrap-hero">
 
   <header class="hero" id="top">
-    <div class="hero-main">
-      <div class="brand"><span class="dot"></span>NID RUN CLUB · GROUP ORDER</div>
-      <h1>RUN<span class="o">N</span>ER&apos;S<br><span class="accent">FUEL</span><span class="tight">SHOP</span></h1>
-      <div class="hero-tagline">Zero to Hero.</div>
-      <div class="subtitle">NID Run Club 學生專屬團購 · <b>限時優惠</b></div>
-      <div class="meta-strip">
-        <div><div class="k">Round</div><div class="v" id="metaRound">— —</div></div>
-        <div><div class="k">Pickup</div><div class="v" id="metaPickup">— —</div></div>
+    <div class="hero-grid">
+      <div class="hero-main">
+        <div class="brand"><span class="dot"></span>NID RUN CLUB · GROUP ORDER</div>
+        <h1>RUN<span class="o">N</span>ER&apos;S<br><span class="accent">FUEL</span><span class="tight">SHOP</span></h1>
+        <div class="hero-tagline">Zero to Hero.</div>
+        <div class="subtitle">NID Run Club 學生專屬團購 · <b>限時優惠</b></div>
+      </div>
+      <div class="hero-side" aria-hidden="true">
+        <div class="n-mark">N</div>
+        <div class="vert-label">Running Culture</div>
       </div>
     </div>
+
+    <div class="meta-strip">
+      <div><div class="k">Round</div><div class="v" id="metaRound">— —</div></div>
+      <div class="meta-deadline"><div class="k">Deadline</div><div class="v"><span id="stripDeadline">— —</span><span class="strip-countdown" id="stripCountdown"></span></div></div>
+      <div><div class="k">Pickup</div><div class="v" id="metaPickup">— —</div></div>
+    </div>
+
+    <!-- 手機版：截止日期小字卡 -->
     <div class="bib" role="img" aria-labelledby="bibNumber bibCountdown">
-      <span class="pin tl"></span><span class="pin tr"></span><span class="pin bl"></span><span class="pin br"></span>
-      <div class="bib-top">NID RUN CLUB</div>
       <div class="bib-number" id="bibNumber">— —</div>
       <div class="bib-bottom"><span>截止</span><span id="metaDeadline">— —</span></div>
       <div class="bib-countdown" id="bibCountdown"></div>
@@ -660,12 +674,16 @@ function parseDeadline(str) {
 function renderBib() {
   const num = document.getElementById('bibNumber');
   const cd = document.getElementById('bibCountdown');
+  const sc = document.getElementById('stripCountdown');
+  document.getElementById('stripDeadline').textContent = ROUND_INFO.deadline;
   const d = parseDeadline(ROUND_INFO.deadline);
-  if (!d) { num.textContent = '開團中'; cd.textContent = ''; return; }
+  if (!d) { num.textContent = '開團中'; cd.textContent = ''; sc.textContent = ''; return; }
   num.textContent = (d.getMonth() + 1) + '/' + String(d.getDate()).padStart(2, '0');
   const ms = d - new Date();
   const days = Math.floor(ms / 86400000);
-  cd.textContent = ms <= 0 ? '已截止' : days >= 1 ? '還有 ' + days + ' 天' : '今天截止，剩 ' + Math.max(1, Math.ceil(ms / 3600000)) + ' 小時';
+  const left = ms <= 0 ? '已截止' : days >= 1 ? '還有 ' + days + ' 天' : '今天截止，剩 ' + Math.max(1, Math.ceil(ms / 3600000)) + ' 小時';
+  cd.textContent = left;
+  sc.textContent = left;
 }
 
 /* ═══════════════════════════════════════════════════════
